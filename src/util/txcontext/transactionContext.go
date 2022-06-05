@@ -35,8 +35,8 @@ func NewTransactionContext(
 ) *TransactionContext {
 
 	return &TransactionContext{
-		cid: cid,
-		rid: rid,
+		cid:    cid,
+		rid:    rid,
 		logger: logger.With(zap.String("cid", cid), zap.String("rid", rid)),
 	}
 }

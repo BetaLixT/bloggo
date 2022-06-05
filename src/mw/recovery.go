@@ -7,15 +7,33 @@ import (
 	"os"
 	"strings"
 
-	"github.com/gin-gonic/gin"
 	"github.com/betalixt/bloggo/util/blerr"
+	"github.com/betalixt/bloggo/util/txcontext"
+	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 )
 
-func RecoveryMiddleware(lgr *zap.Logger) gin.HandlerFunc {
+func RecoveryMiddleware(logger *zap.Logger) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		defer func() {
 			if err := recover(); err != nil {
+				
+				// Dependent on the txgenerator
+				// Making it more resilient to avoid errors
+				lgr := (*zap.Logger)(nil)
+				if tctxAny, exists := c.Get("tctx"); !exists {
+					lgr = logger
+				} else if tctx, ok := tctxAny.(*txcontext.TransactionContext); !ok {
+					lgr = logger
+				} else {
+					lgr = tctx.GetLogger()
+				}
+
+				// In case the get logger fails
+				if lgr == nil {
+					lgr = logger
+				}	
+				
 				perr, ok := err.(blerr.Error)
 				if ok {
 					c.JSON(perr.StatusCode, perr)

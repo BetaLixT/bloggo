@@ -1,22 +1,28 @@
 package mw
 
-import (	
+import (
 	"time"
 
+	"github.com/betalixt/bloggo/util/txcontext"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 )
 
-func LoggingMiddleware(logger *zap.Logger) gin.HandlerFunc {
+func LoggingMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		start := time.Now()
 		path := c.Request.URL.Path
 		query := c.Request.URL.RawQuery
+
 		c.Next()
+		
+		// Dependent on the txgenerator
+		tctx := c.MustGet("tctx").(*txcontext.TransactionContext)
+		
 		ts := time.Now()
 		latency := ts.Sub(start)
 
-		logger.Info(
+		tctx.GetLogger().Info(
 			"Request",
 			zap.Int("status", c.Writer.Status()),
 			zap.String("method", c.Request.Method),
