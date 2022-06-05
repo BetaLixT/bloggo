@@ -373,8 +373,7 @@ func (httpClient *HttpClient) actionForm(
 	return &respObj, nil
 }
 
-
-func (httpClient *HttpClient) formHeaders (
+func (httpClient *HttpClient) formHeaders(
 	req *http.Request,
 	headers map[string]string,
 ) {
@@ -443,10 +442,11 @@ func formatEp(
 }
 
 // - "Constructors"
-func NewClient(logger *zap.Logger) *HttpClient {
+func NewClient(logger *zap.Logger, headers map[string]string) *HttpClient {
 	client := HttpClient{
-		client: *http.DefaultClient,
-		logger: logger,
+		client:  *http.DefaultClient,
+		logger:  logger,
+		headers: headers,
 	}
 	return &client
 }
