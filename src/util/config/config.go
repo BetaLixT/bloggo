@@ -14,6 +14,7 @@ func InitializeConfig (
 	pth string,
 ) *blerr.Error {
 	viper.SetConfigName("config")
+	viper.KeyDelimiter("__")
 	viper.AddConfigPath(pth)
 	viper.SetEnvPrefix("BLOGGO")
 	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "__"))
@@ -28,6 +29,12 @@ func InitializeConfig (
 			logger.Error("Failed loading config")
 			return blerr.NewError(blerr.ConfigLoadFailureCode, 500, err.Error())
 		}
+	}
+
+	// scuffed workaround for env vars
+	for _, key := range viper.AllKeys() {
+		val := viper.Get(key)
+		viper.Set(key, val)
 	}
 	
 	return nil
