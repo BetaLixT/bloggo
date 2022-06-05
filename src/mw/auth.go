@@ -12,11 +12,15 @@ func AuthMiddleware(tknSvc *svc.TokenService) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		authHeader := ctx.Request.Header.Get("Authorization")
 		authSplit := strings.Split(authHeader, " ")
-		if 
-			len(authSplit) != 2 || authSplit[0] != "Bearer" {
-			ctx.Error(blerr.NewError(blerr.TokenInvalidCode, 401, "")) 
+		if len(authSplit) != 2 || authSplit[0] != "Bearer" {
+			ctx.Error(blerr.NewError(blerr.TokenInvalidCode, 401, ""))
+			return
 		}
-		tknSvc.ValidateToken(authSplit[1])
+		_, err := tknSvc.ValidateToken(authSplit[1])
+		if err != nil {
+			ctx.Error(err)
+			return
+		}
 		ctx.Next()
 	}
 }

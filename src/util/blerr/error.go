@@ -30,16 +30,16 @@ func NewError(code ErrorCode, status int, detail string) *Error {
 	}
 }
 
-func UnexpectedError() Error {
-	return Error{
+func UnexpectedError() *Error {
+	return &Error{
 		StatusCode:   500,
 		ErrorCode:    UnexpectedErrorCode.code,
 		ErrorMessage: UnexpectedErrorCode.message,
 	}
 }
 
-func UnexpectedErrorDetailed(e error) Error {
-	return Error{
+func UnexpectedErrorDetailed(e error) *Error {
+	return &Error{
 		StatusCode:   500,
 		ErrorCode:    UnexpectedErrorCode.code,
 		ErrorMessage: UnexpectedErrorCode.message,
@@ -47,8 +47,8 @@ func UnexpectedErrorDetailed(e error) Error {
 	}
 }
 
-func NotImplemented() Error {
-	return Error{
+func NotImplemented() *Error {
+	return &Error{
 		StatusCode:   501,
 		ErrorCode:    NotImplementedCode.code,
 		ErrorMessage: NotImplementedCode.message,
