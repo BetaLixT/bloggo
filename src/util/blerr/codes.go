@@ -48,3 +48,10 @@ var DatabaseMigrationMigrationFetchFailedCode = ErrorCode{
 	code:    2005,
 	message: "DatabaseMigrationMigrationFetchFailed",
 }
+
+// - Auth errors
+// - Auth errors
+var TokenInvalidCode = ErrorCode{
+	code:    4000,
+	message: "TokenInvalid",
+}
