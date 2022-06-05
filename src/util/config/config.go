@@ -1,16 +1,25 @@
 package config
 
 import (
+	"strings"
+
 	"github.com/betalixt/bloggo/util/blerr"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
 )
 
 
-func InitializeConfig (logger *zap.Logger, pth string) *blerr.Error {
+func InitializeConfig (
+	logger *zap.Logger,
+	pth string,
+) *blerr.Error {
 	viper.SetConfigName("config")
 	viper.AddConfigPath(pth)
+	viper.SetEnvPrefix("BLOGGO")
+	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "__"))
 	viper.AutomaticEnv()
+	viper.BindEnv("PORT", "PORT")
+
 
 	if err := viper.ReadInConfig(); err != nil {
 		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
@@ -20,8 +29,6 @@ func InitializeConfig (logger *zap.Logger, pth string) *blerr.Error {
 			return blerr.NewError(blerr.ConfigLoadFailureCode, 500, err.Error())
 		}
 	}
-
-	// TODO bind options
 	
 	return nil
 }
