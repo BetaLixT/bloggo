@@ -7,7 +7,7 @@ import (
 )
 
 
-func InitializeConfig (logger *zap.Logger, pth string) (*viper.Viper, *blerr.Error) {
+func InitializeConfig (logger *zap.Logger, pth string) *blerr.Error {
 	viper.SetConfigName("config")
 	viper.AddConfigPath(pth)
 	viper.AutomaticEnv()
@@ -17,15 +17,19 @@ func InitializeConfig (logger *zap.Logger, pth string) (*viper.Viper, *blerr.Err
 			logger.Warn("No config file found")
 		} else {
 			logger.Error("Failed loading config")
-			return nil, blerr.NewError(blerr.ConfigLoadFailureCode, 500, err.Error())
+			return blerr.NewError(blerr.ConfigLoadFailureCode, 500, err.Error())
 		}
 	}
 
 	// TODO bind options
 	
-	return viper.GetViper(), nil
+	return nil
 }
 
-func GetConfig () *viper.Viper {
+func NewConfig (lgr *zap.Logger) *viper.Viper {
+	if err := InitializeConfig(lgr, "./cfg"); err != nil {
+		panic(err)
+	}
+
 	return viper.GetViper()
 }
