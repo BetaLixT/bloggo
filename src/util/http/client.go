@@ -12,8 +12,9 @@ import (
 )
 
 type HttpClient struct {
-	client http.Client
-	logger *zap.Logger
+	client  http.Client
+	logger  *zap.Logger
+	headers map[string]string
 }
 
 func (httpClient *HttpClient) Get(
@@ -243,9 +244,7 @@ func (httpClient *HttpClient) action(
 		return nil, err
 	}
 
-	for key, value := range headers {
-		req.Header.Add(key, value)
-	}
+	httpClient.formHeaders(req, headers)
 
 	httpClient.logger.Info(
 		"Making outbound http request",
@@ -301,9 +300,8 @@ func (httpClient *HttpClient) actionBody(
 		return nil, err
 	}
 
-	for key, value := range headers {
-		req.Header.Add(key, value)
-	}
+	httpClient.formHeaders(req, headers)
+	req.Header.Set("Content-Type", "application/json")
 
 	httpClient.logger.Info(
 		"Making outbound http request",
@@ -346,11 +344,9 @@ func (httpClient *HttpClient) actionForm(
 	if err != nil {
 		return nil, err
 	}
-	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 
-	for key, value := range headers {
-		req.Header.Add(key, value)
-	}
+	httpClient.formHeaders(req, headers)
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 
 	httpClient.logger.Info(
 		"Making outbound http request",
@@ -375,6 +371,19 @@ func (httpClient *HttpClient) actionForm(
 	)
 	respObj := Response(*resp)
 	return &respObj, nil
+}
+
+
+func (httpClient *HttpClient) formHeaders (
+	req *http.Request,
+	headers map[string]string,
+) {
+	for key, value := range httpClient.headers {
+		req.Header.Add(key, value)
+	}
+	for key, value := range headers {
+		req.Header.Add(key, value)
+	}
 }
 
 // TODO Pre calculating length and allocating might improve performance
