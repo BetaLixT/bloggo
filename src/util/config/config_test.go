@@ -34,8 +34,10 @@ func TestInitializeConfig(t *testing.T) {
 	}
 	if opt.SomeConfig != "value00" {
 		fmt.Printf("value SomeConfig is invalid %s\n", opt.SomeConfig)
+		t.Fail()
 	}
 	if opt.OtherConfig != 435 {
 		fmt.Printf("value OtherConfig is invalid %d\n", opt.OtherConfig)
+		t.Fail()
 	}
 }
