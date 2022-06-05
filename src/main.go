@@ -6,6 +6,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/betalixt/bloggo/optn"
 	"github.com/betalixt/bloggo/svc"
 	"github.com/betalixt/bloggo/util/blerr"
 	"github.com/betalixt/bloggo/util/config"
@@ -40,6 +41,7 @@ func main() {
 	app := fx.New(
 		fx.Provide(logger.NewLogger),
 		fx.Provide(config.NewConfig),
+		fx.Provide(optn.NewCorsOptions),
 		// fx.Provide(db.NewDatabase),
 		// fx.Provide(db.NewMigration),
 		fx.Provide(svc.NewTokenService),

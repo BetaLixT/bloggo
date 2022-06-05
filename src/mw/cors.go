@@ -1,15 +1,15 @@
 package mw
 
 import (
+	"github.com/betalixt/bloggo/optn"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
-	"github.com/spf13/viper"
 	"go.uber.org/zap"
 )
 
-func CorsMiddleware(lgr *zap.Logger, cfg *viper.Viper) gin.HandlerFunc {
+func CorsMiddleware(lgr *zap.Logger, optn *optn.CorsOptions) gin.HandlerFunc {
 	corsCfg := cors.DefaultConfig()
-	corsCfg.AllowOrigins = cfg.GetStringSlice("AllowedOrigins")
+	corsCfg.AllowOrigins = optn.AllowedOrigins
 	corsCfg.AllowCredentials = true
 	corsCfg.AllowHeaders = []string {
 		"Content-Type",

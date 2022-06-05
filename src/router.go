@@ -2,15 +2,15 @@ package main
 
 import (
 	"github.com/betalixt/bloggo/mw"
+	"github.com/betalixt/bloggo/optn"
 	"github.com/betalixt/bloggo/svc"
 	"github.com/gin-gonic/gin"
-	"github.com/spf13/viper"
 	"go.uber.org/zap"
 )
 
 func NewGinEngine(
 	lgr *zap.Logger,
-	cfg *viper.Viper,
+	corsOptn *optn.CorsOptions,
 	tknSvc *svc.TokenService,
 ) *gin.Engine {
 	router := gin.New()
@@ -21,7 +21,7 @@ func NewGinEngine(
 	router.Use(mw.TransactionContextGenerationMiddleware(lgr))
 	router.Use(mw.LoggingMiddleware())
 	router.Use(mw.RecoveryMiddleware(lgr))
-	router.Use(mw.CorsMiddleware(lgr, cfg))
+	router.Use(mw.CorsMiddleware(lgr, corsOptn))
   // TODO Make this configurable
 	router.Use(mw.AuthMiddleware(tknSvc))
 
