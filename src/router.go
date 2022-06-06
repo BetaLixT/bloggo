@@ -5,6 +5,7 @@ import (
 	"github.com/betalixt/bloggo/optn"
 	"github.com/betalixt/bloggo/svc"
 	"github.com/gin-gonic/gin"
+	"github.com/jmoiron/sqlx"
 	"go.uber.org/zap"
 )
 
@@ -12,13 +13,14 @@ func NewGinEngine(
 	lgr *zap.Logger,
 	corsOptn *optn.CorsOptions,
 	tknSvc *svc.TokenService,
+	db *sqlx.DB,
 ) *gin.Engine {
 	router := gin.New()
 	gin.SetMode(gin.ReleaseMode)
 	router.SetTrustedProxies(nil)
 
 	// - Setting up middlewares
-	router.Use(mw.TransactionContextGenerationMiddleware(lgr))
+	router.Use(mw.TransactionContextGenerationMiddleware(lgr, db))
 	router.Use(mw.LoggingMiddleware())
 	router.Use(mw.RecoveryMiddleware(lgr))
 	router.Use(mw.CorsMiddleware(lgr, corsOptn))

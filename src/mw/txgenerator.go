@@ -4,6 +4,7 @@ import (
 	// "strings"
 
 	"github.com/betalixt/bloggo/util/txcontext"
+	"github.com/jmoiron/sqlx"
 	"go.uber.org/zap"
 
 	// "github.com/betalixt/bloggo/util/blerr"
@@ -13,6 +14,7 @@ import (
 
 func TransactionContextGenerationMiddleware(
 	lgr *zap.Logger,
+	db *sqlx.DB,
 ) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		cid := ctx.GetHeader("x-correlation-id")
@@ -23,6 +25,7 @@ func TransactionContextGenerationMiddleware(
 		tctx := txcontext.NewTransactionContext(
 			cid,
 			rid,
+			db,
 			lgr,
 		)
 		ctx.Set("tctx", tctx)

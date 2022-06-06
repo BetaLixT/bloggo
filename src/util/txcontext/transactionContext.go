@@ -1,15 +1,19 @@
 package txcontext
 
 import (
+	"github.com/betalixt/bloggo/intl/db"
 	"github.com/betalixt/bloggo/util/http"
+	"github.com/jmoiron/sqlx"
 	"go.uber.org/zap"
 )
 
 type TransactionContext struct {
 	cid        string
 	rid        string
+	db         *sqlx.DB
 	logger     *zap.Logger
 	httpClient *http.HttpClient
+	tracedDB   *db.TracedDBContext
 }
 
 func (tctx *TransactionContext) GetLogger() *zap.Logger {
@@ -26,17 +30,28 @@ func (tctx *TransactionContext) GetHttpClient() *http.HttpClient {
 	}
 	return tctx.httpClient
 }
+func (tctx *TransactionContext) GetDatabaseContext() *db.TracedDBContext {
+	if tctx.tracedDB == nil {
+		tctx.tracedDB = db.NewTracedDBContext(
+			tctx.db,
+			tctx.logger,
+		)
+	}
+	return tctx.tracedDB
+}
 
 // - Constructor
 func NewTransactionContext(
 	cid string,
 	rid string,
+	db *sqlx.DB,
 	logger *zap.Logger,
 ) *TransactionContext {
 
 	return &TransactionContext{
 		cid:    cid,
 		rid:    rid,
+		db:     db,
 		logger: logger.With(zap.String("cid", cid), zap.String("rid", rid)),
 	}
 }

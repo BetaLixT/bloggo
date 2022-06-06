@@ -6,6 +6,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/betalixt/bloggo/intl/db"
 	"github.com/betalixt/bloggo/optn"
 	"github.com/betalixt/bloggo/svc"
 	"github.com/betalixt/bloggo/util/blerr"
@@ -42,7 +43,8 @@ func main() {
 		fx.Provide(logger.NewLogger),
 		fx.Provide(config.NewConfig),
 		fx.Provide(optn.NewCorsOptions),
-		// fx.Provide(db.NewDatabase),
+		fx.Provide(optn.NewDatabaseOptions),
+		fx.Provide(db.NewDatabase),
 		// fx.Provide(db.NewMigration),
 		fx.Provide(svc.NewTokenService),
 		fx.Provide(NewGinEngine),
