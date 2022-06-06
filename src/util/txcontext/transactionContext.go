@@ -3,7 +3,7 @@ package txcontext
 import (
 	"github.com/betalixt/bloggo/intl/db"
 	"github.com/betalixt/bloggo/intl/trace"
-	"github.com/betalixt/bloggo/util/http"
+	"github.com/betalixt/bloggo/intl/http"
 	"github.com/jmoiron/sqlx"
 	"go.uber.org/zap"
 )
@@ -25,7 +25,7 @@ func (tctx *TransactionContext) GetLogger() *zap.Logger {
 func (tctx *TransactionContext) GetHttpClient() *http.HttpClient {
 	if tctx.httpClient == nil {
 		tctx.httpClient = http.NewClient(
-			tctx.logger,
+			tctx.GetTracer(),
 			map[string]string{
 				"x-correlation-id": tctx.cid,
 			},

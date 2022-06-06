@@ -6,14 +6,16 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"strconv"
 	"strings"
+	"time"
 
-	"go.uber.org/zap"
+	"github.com/betalixt/bloggo/intl/trace"
 )
 
 type HttpClient struct {
 	client  http.Client
-	logger  *zap.Logger
+	tracer  trace.ITracer
 	headers map[string]string
 }
 
@@ -246,26 +248,31 @@ func (httpClient *HttpClient) action(
 
 	httpClient.formHeaders(req, headers)
 
-	httpClient.logger.Info(
-		"Making outbound http request",
-		zap.String("method", method),
-		zap.String("endpoint", endpoint),
-	)
+	start := time.Now()
 	resp, err := httpClient.client.Do(req)
+	end := time.Now()
 	if err != nil {
-		httpClient.logger.Error(
-			"Outbound request failed",
-			zap.String("method", method),
-			zap.String("endpoint", endpoint),
-			zap.Error(err),
+		httpClient.tracer.TraceDependency(
+			"http",
+			"",
+			fmt.Sprintf("%s %s", method, endpoint),
+			false,
+			start,
+			end,
+			trace.NewField("method", method),
+			trace.NewField("error", err.Error()),
 		)
 		return nil, err
 	}
-	httpClient.logger.Info(
-		"Request completed",
-		zap.String("method", method),
-		zap.String("endpoint", endpoint),
-		zap.Int("statusCode", resp.StatusCode),
+	httpClient.tracer.TraceDependency(
+		"http",
+		"",
+		fmt.Sprintf("%s %s", method, endpoint),
+		resp.StatusCode > 199 && resp.StatusCode < 300,
+		start,
+		end,
+		trace.NewField("method", method),
+		trace.NewField("statusCode", strconv.Itoa(resp.StatusCode)),
 	)
 	respObj := Response(*resp)
 	return &respObj, nil
@@ -286,12 +293,6 @@ func (httpClient *HttpClient) actionBody(
 
 	byts, err := json.Marshal(body)
 	if err != nil {
-		httpClient.logger.Error(
-			"Failed to marshal request body",
-			zap.String("method", method),
-			zap.String("endpoint", endpoint),
-			zap.Error(err),
-		)
 		return nil, err
 	}
 
@@ -303,26 +304,31 @@ func (httpClient *HttpClient) actionBody(
 	httpClient.formHeaders(req, headers)
 	req.Header.Set("Content-Type", "application/json")
 
-	httpClient.logger.Info(
-		"Making outbound http request",
-		zap.String("method", method),
-		zap.String("endpoint", endpoint),
-	)
+	start := time.Now()
 	resp, err := httpClient.client.Do(req)
+	end := time.Now()
 	if err != nil {
-		httpClient.logger.Error(
-			"Outbound request failed",
-			zap.String("method", method),
-			zap.String("endpoint", endpoint),
-			zap.Error(err),
+		httpClient.tracer.TraceDependency(
+			"http",
+			"",
+			fmt.Sprintf("%s %s", method, endpoint),
+			false,
+			start,
+			end,
+			trace.NewField("method", method),
+			trace.NewField("error", err.Error()),
 		)
 		return nil, err
 	}
-	httpClient.logger.Info(
-		"Request completed",
-		zap.String("method", method),
-		zap.String("endpoint", endpoint),
-		zap.Int("statusCode", resp.StatusCode),
+	httpClient.tracer.TraceDependency(
+		"http",
+		"",
+		fmt.Sprintf("%s %s", method, endpoint),
+		resp.StatusCode > 199 && resp.StatusCode < 300,
+		start,
+		end,
+		trace.NewField("method", method),
+		trace.NewField("statusCode", strconv.Itoa(resp.StatusCode)),
 	)
 	respObj := Response(*resp)
 	return &respObj, nil
@@ -348,26 +354,31 @@ func (httpClient *HttpClient) actionForm(
 	httpClient.formHeaders(req, headers)
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 
-	httpClient.logger.Info(
-		"Making outbound http request",
-		zap.String("method", method),
-		zap.String("endpoint", endpoint),
-	)
+	start := time.Now()
 	resp, err := httpClient.client.Do(req)
+	end := time.Now()
 	if err != nil {
-		httpClient.logger.Error(
-			"Outbound request failed",
-			zap.String("method", method),
-			zap.String("endpoint", endpoint),
-			zap.Error(err),
+		httpClient.tracer.TraceDependency(
+			"http",
+			"",
+			fmt.Sprintf("%s %s", method, endpoint),
+			false,
+			start,
+			end,
+			trace.NewField("method", method),
+			trace.NewField("error", err.Error()),
 		)
 		return nil, err
 	}
-	httpClient.logger.Info(
-		"Request completed",
-		zap.String("method", method),
-		zap.String("endpoint", endpoint),
-		zap.Int("statusCode", resp.StatusCode),
+	httpClient.tracer.TraceDependency(
+		"http",
+		"",
+		fmt.Sprintf("%s %s", method, endpoint),
+		resp.StatusCode > 199 && resp.StatusCode < 300,
+		start,
+		end,
+		trace.NewField("method", method),
+		trace.NewField("statusCode", strconv.Itoa(resp.StatusCode)),
 	)
 	respObj := Response(*resp)
 	return &respObj, nil
@@ -442,10 +453,10 @@ func formatEp(
 }
 
 // - "Constructors"
-func NewClient(logger *zap.Logger, headers map[string]string) *HttpClient {
+func NewClient(tracer trace.ITracer, headers map[string]string) *HttpClient {
 	client := HttpClient{
 		client:  *http.DefaultClient,
-		logger:  logger,
+		tracer:  tracer,
 		headers: headers,
 	}
 	return &client
