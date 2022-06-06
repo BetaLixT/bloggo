@@ -248,32 +248,7 @@ func (httpClient *HttpClient) action(
 
 	httpClient.formHeaders(req, headers)
 
-	start := time.Now()
-	resp, err := httpClient.client.Do(req)
-	end := time.Now()
-	if err != nil {
-		httpClient.tracer.TraceDependency(
-			"http",
-			"",
-			fmt.Sprintf("%s %s", method, endpoint),
-			false,
-			start,
-			end,
-			trace.NewField("method", method),
-			trace.NewField("error", err.Error()),
-		)
-		return nil, err
-	}
-	httpClient.tracer.TraceDependency(
-		"http",
-		"",
-		fmt.Sprintf("%s %s", method, endpoint),
-		resp.StatusCode > 199 && resp.StatusCode < 300,
-		start,
-		end,
-		trace.NewField("method", method),
-		trace.NewField("statusCode", strconv.Itoa(resp.StatusCode)),
-	)
+	resp, err := httpClient.runRequest(req)
 	respObj := Response(*resp)
 	return &respObj, nil
 }
@@ -304,32 +279,7 @@ func (httpClient *HttpClient) actionBody(
 	httpClient.formHeaders(req, headers)
 	req.Header.Set("Content-Type", "application/json")
 
-	start := time.Now()
-	resp, err := httpClient.client.Do(req)
-	end := time.Now()
-	if err != nil {
-		httpClient.tracer.TraceDependency(
-			"http",
-			"",
-			fmt.Sprintf("%s %s", method, endpoint),
-			false,
-			start,
-			end,
-			trace.NewField("method", method),
-			trace.NewField("error", err.Error()),
-		)
-		return nil, err
-	}
-	httpClient.tracer.TraceDependency(
-		"http",
-		"",
-		fmt.Sprintf("%s %s", method, endpoint),
-		resp.StatusCode > 199 && resp.StatusCode < 300,
-		start,
-		end,
-		trace.NewField("method", method),
-		trace.NewField("statusCode", strconv.Itoa(resp.StatusCode)),
-	)
+	resp, err := httpClient.runRequest(req)
 	respObj := Response(*resp)
 	return &respObj, nil
 }
@@ -354,32 +304,7 @@ func (httpClient *HttpClient) actionForm(
 	httpClient.formHeaders(req, headers)
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 
-	start := time.Now()
-	resp, err := httpClient.client.Do(req)
-	end := time.Now()
-	if err != nil {
-		httpClient.tracer.TraceDependency(
-			"http",
-			"",
-			fmt.Sprintf("%s %s", method, endpoint),
-			false,
-			start,
-			end,
-			trace.NewField("method", method),
-			trace.NewField("error", err.Error()),
-		)
-		return nil, err
-	}
-	httpClient.tracer.TraceDependency(
-		"http",
-		"",
-		fmt.Sprintf("%s %s", method, endpoint),
-		resp.StatusCode > 199 && resp.StatusCode < 300,
-		start,
-		end,
-		trace.NewField("method", method),
-		trace.NewField("statusCode", strconv.Itoa(resp.StatusCode)),
-	)
+	resp, err := httpClient.runRequest(req)
 	respObj := Response(*resp)
 	return &respObj, nil
 }
@@ -394,6 +319,38 @@ func (httpClient *HttpClient) formHeaders(
 	for key, value := range headers {
 		req.Header.Add(key, value)
 	}
+}
+
+func (httpClient *HttpClient) runRequest(
+	req *http.Request,
+) (*http.Response, error) {
+	start := time.Now()
+	resp, err := httpClient.client.Do(req)
+	end := time.Now()
+	if err != nil {
+		httpClient.tracer.TraceDependency(
+			"http",
+			req.URL.Hostname(),
+			fmt.Sprintf("%s %s", req.Method, req.URL.RequestURI()),
+			false,
+			start,
+			end,
+			trace.NewField("method", req.Method),
+			trace.NewField("error", err.Error()),
+		)
+		return nil, err
+	}
+	httpClient.tracer.TraceDependency(
+		"http",
+		req.URL.Hostname(),
+		fmt.Sprintf("%s %s", req.Method, req.URL.RequestURI()),
+		resp.StatusCode > 199 && resp.StatusCode < 300,
+		start,
+		end,
+		trace.NewField("method", req.Method),
+		trace.NewField("statusCode", strconv.Itoa(resp.StatusCode)),
+	)
+	return resp, err
 }
 
 // TODO Pre calculating length and allocating might improve performance
