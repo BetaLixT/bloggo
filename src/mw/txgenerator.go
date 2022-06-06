@@ -18,13 +18,16 @@ func TransactionContextGenerationMiddleware(
 ) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		cid := ctx.GetHeader("x-correlation-id")
+		isParent := false
 		if cid == "" {
 			cid = uuid.NewV4().String()
+			isParent = true
 		}
 		rid := uuid.NewV4().String()
 		tctx := txcontext.NewTransactionContext(
 			cid,
 			rid,
+			isParent,
 			db,
 			lgr,
 		)

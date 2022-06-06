@@ -2,56 +2,109 @@ package db
 
 import (
 	"database/sql"
+	"time"
 
+	"github.com/betalixt/bloggo/intl/trace"
 	"github.com/jmoiron/sqlx"
-	"go.uber.org/zap"
 )
 
 type TracedDBTransaction struct {
-  *sqlx.Tx
-  lgr *zap.Logger
+	*sqlx.Tx
+	tracer      trace.ITracer
+	serviceName string
 }
 
-func (tx *TracedDBTransaction) Get (
-  dest interface{},
-  query string,
-  args ...interface{},
+func (tx *TracedDBTransaction) Get(
+	dest interface{},
+	query string,
+	args ...interface{},
 ) error {
-  tx.lgr.Info("Executing query on database")
-  err := tx.Tx.Get(dest, query, args...)
-  if err != nil {
-    tx.lgr.Error("Database query failed", zap.Error(err))
-  } else {
-    tx.lgr.Info("Database query succeded")
-  }
-  return err
+	start := time.Now()
+	err := tx.Tx.Get(dest, query, args...)
+	end := time.Now()
+	if err != nil {
+		tx.tracer.TraceDependency(
+			tx.DriverName(),
+			tx.serviceName,
+			"Get",
+			false,
+			start,
+			end,
+			trace.NewField("error", err.Error()),
+			trace.NewField("query", query),
+		)
+	} else {
+		tx.tracer.TraceDependency(
+			tx.DriverName(),
+			tx.serviceName,
+			"Get",
+			true,
+			start,
+			end,
+		)
+	}
+	return err
 }
 
-func (tx *TracedDBTransaction) Select (
-  dest interface{},
-  query string,
-  args ...interface{},
+func (tx *TracedDBTransaction) Select(
+	dest interface{},
+	query string,
+	args ...interface{},
 ) error {
-  tx.lgr.Info("Executing query on database")
-  err := tx.Tx.Select(dest, query, args...)
-  if err != nil {
-    tx.lgr.Error("Database query failed", zap.Error(err))
-  } else {
-    tx.lgr.Info("Database query succeded")
-  }
-  return err
+	start := time.Now()
+	err := tx.Tx.Select(dest, query, args...)
+	end := time.Now()
+	if err != nil {
+		tx.tracer.TraceDependency(
+			tx.DriverName(),
+			tx.serviceName,
+			"Get",
+			false,
+			start,
+			end,
+			trace.NewField("error", err.Error()),
+			trace.NewField("query", query),
+		)
+	} else {
+		tx.tracer.TraceDependency(
+			tx.DriverName(),
+			tx.serviceName,
+			"Get",
+			true,
+			start,
+			end,
+		)
+	}
+	return err
 }
 
 func (tx *TracedDBTransaction) Exec(
 	query string,
 	args ...interface{},
 ) (sql.Result, error) {
-	tx.lgr.Info("Executing query on database")
-	res, err := tx.Tx.Exec(query, args...)	
+	start := time.Now()
+	res, err := tx.Tx.Exec(query, args...)
+	end := time.Now()
 	if err != nil {
-    tx.lgr.Error("Database query failed", zap.Error(err))
-  } else {
-    tx.lgr.Info("Database query succeded")
-  }
-  return res, err
+		tx.tracer.TraceDependency(
+			tx.DriverName(),
+			tx.serviceName,
+			"Get",
+			false,
+			start,
+			end,
+			trace.NewField("error", err.Error()),
+			trace.NewField("query", query),
+		)
+	} else {
+		tx.tracer.TraceDependency(
+			tx.DriverName(),
+			tx.serviceName,
+			"Get",
+			true,
+			start,
+			end,
+		)
+	}
+	return res, err
 }

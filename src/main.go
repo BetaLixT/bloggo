@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/betalixt/bloggo/intl/db"
+	"github.com/betalixt/bloggo/intl/trace"
 	"github.com/betalixt/bloggo/optn"
 	"github.com/betalixt/bloggo/repo"
 	"github.com/betalixt/bloggo/svc"
@@ -71,7 +72,7 @@ func StartService(
 
 	lgr.Info("Running migrations")
 	err := repo.RunMigrations(
-		db.NewTracedDBContext(dbctx, lgr),
+		db.NewTracedDBContext(dbctx, trace.NewZapTracer(lgr), "main-database"),
 		lgr,
 	)
 	if err != nil {
