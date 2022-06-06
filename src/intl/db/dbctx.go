@@ -9,7 +9,8 @@ import (
 
 func NewDatabase(cfg *viper.Viper) *sqlx.DB {
 
-	conn := cfg.GetString("DatabaseConnectionString")
+	// TODO Move this to options
+	conn := cfg.GetString("DatabaseOptions.ConnectionString")
 	db, err := sqlx.Open("postgres", conn)
 	if err != nil {
 		panic(blerr.NewError(

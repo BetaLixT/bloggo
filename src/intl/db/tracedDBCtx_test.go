@@ -16,7 +16,7 @@ func TestNewTracedDBCtx(t *testing.T) {
 		}
 	}()
   lgr := logger.NewLogger()
-	berr := config.InitializeConfig(lgr, "../cfg")
+	berr := config.InitializeConfig(lgr, "../../cfg")
 	if berr != nil {
 		t.Errorf("failed to create config")
 		t.FailNow()

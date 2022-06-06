@@ -24,9 +24,9 @@ func (trDB *TracedDBContext) Get (
   args ...interface{},
 ) error {
   trDB.lgr.Info("Executing query on database")
-  err := trDB.DB.Get(dest, query, args)
+  err := trDB.DB.Get(dest, query, args...)
   if err != nil {
-    trDB.lgr.Error("Database query failed")
+    trDB.lgr.Error("Database query failed", zap.Error(err))
   } else {
     trDB.lgr.Info("Database query succeded")
   }
