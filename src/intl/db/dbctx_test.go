@@ -16,7 +16,7 @@ func TestDatabaseConnection(t *testing.T){
 		}
 	}()
 	lgr := logger.NewLogger()
-	err := config.InitializeConfig(lgr, "../cfg")
+	err := config.InitializeConfig(lgr, "../../cfg")
 	if err != nil {
 		t.Errorf("failed to create config")
 		t.FailNow()
