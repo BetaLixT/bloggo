@@ -296,7 +296,11 @@ func (httpClient *HttpClient) actionForm(
 	if err != nil {
 		return nil, err
 	}
-	req, err := http.NewRequest(method, endpoint, strings.NewReader(form.Encode()))
+	req, err := http.NewRequest(
+		method,
+		endpoint,
+		strings.NewReader(form.Encode()),
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -394,7 +398,8 @@ func formatEp(
 	}
 
 	// TODO could be done in parallel, performance needs to be tested
-	// TODO found out that url.Values has an Encode funtion that does this, need to test
+	// TODO found out that url.Values has an Encode funtion that does this,
+	//      need to test
 	qryBuf := []byte("?")
 
 	for key, vals := range qParam {
