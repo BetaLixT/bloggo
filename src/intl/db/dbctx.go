@@ -1,17 +1,15 @@
 package db
 
-import (	
-	"github.com/jmoiron/sqlx"
+import (
+	"github.com/betalixt/bloggo/optn"
 	"github.com/betalixt/bloggo/util/blerr"
+	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
-	"github.com/spf13/viper"
 )
 
-func NewDatabase(cfg *viper.Viper) *sqlx.DB {
+func NewDatabase(optn *optn.DatabaseOptions) *sqlx.DB {
 
-	// TODO Move this to options
-	conn := cfg.GetString("DatabaseOptions.ConnectionString")
-	db, err := sqlx.Open("postgres", conn)
+	db, err := sqlx.Open("postgres", optn.ConnectionString)
 	if err != nil {
 		panic(blerr.NewError(
 				blerr.DatabaseConnectionOpenFailure,

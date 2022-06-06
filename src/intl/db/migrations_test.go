@@ -3,6 +3,7 @@ package db
 import (
 	"testing"
 
+	"github.com/betalixt/bloggo/optn"
 	"github.com/betalixt/bloggo/util/config"
 	"github.com/betalixt/bloggo/util/logger"
 	"github.com/spf13/viper"
@@ -22,7 +23,7 @@ func TestMigration(t *testing.T){
 		t.FailNow()
 	}
 	cfg := viper.GetViper()
-	db := NewDatabase(cfg)
+	db := NewDatabase(optn.NewDatabaseOptions(cfg))
 	mgr := NewMigration(db, lgr)
 	err := mgr.RunMigrations()
 	if err != nil {
