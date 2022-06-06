@@ -4,32 +4,24 @@ import (
 	"sort"
 	"time"
 
-	"github.com/jmoiron/sqlx"
 	"github.com/betalixt/bloggo/util/blerr"
 	"go.uber.org/zap"
 )
 
-type Migration struct {
-	db  *sqlx.DB
-	lgr *zap.Logger
-}
 
-func NewMigration(db *sqlx.DB, lgr *zap.Logger) *Migration {
-	return &Migration{
-		db:  db,
-		lgr: lgr,
-	}
-}
+func RunMigrations(
+	lgr *zap.Logger,
+	db *TracedDBContext,
+	migrations []MigrationScript,
+) error {
 
-func (mgr *Migration) RunMigrations() error {
-
-	tx := mgr.db.MustBegin()
+	tx := db.MustBegin()
 	chck := ExistsEntity{}
 
 	// - creating timestamp procedures if requried
 	err := tx.Get(&chck, CheckTimestampProceduresExist)
 	if err != nil {
-		mgr.lgr.Error(
+		lgr.Error(
 			"Failed fetching procedure info",
 			zap.Error(err),
 		)
@@ -41,14 +33,14 @@ func (mgr *Migration) RunMigrations() error {
 	}
 
 	if !chck.Exists {
-		mgr.lgr.Info("Creating timestamp procedures")
+		lgr.Info("Creating timestamp procedures")
 		tx.MustExec(timestampProcedures.up)
 	}
 
 	// - creating migration table if required
 	err = tx.Get(&chck, CheckMigrationExists)
 	if err != nil {
-		mgr.lgr.Error(
+		lgr.Error(
 			"Failed fetching migration info",
 			zap.Error(err),
 		)
@@ -61,14 +53,14 @@ func (mgr *Migration) RunMigrations() error {
 	var exMigrs []migrationEntity
 
 	if !chck.Exists {
-		mgr.lgr.Info("Creating migration table")
+		lgr.Info("Creating migration table")
 		tx.MustExec(migrationTable.up)
 		exMigrs = []migrationEntity{}
 	} else {
-		mgr.lgr.Info("Fetching migration history")
+		lgr.Info("Fetching migration history")
 		err = tx.Select(&exMigrs, GetAllMigrations)
 		if err != nil {
-			mgr.lgr.Error(
+			lgr.Error(
 				"failed to fetch migrations",
 				zap.Error(err),
 			)
@@ -94,7 +86,7 @@ func (mgr *Migration) RunMigrations() error {
 					""))
 			}
 		} else {
-			mgr.lgr.Info("Running migration", zap.String("migration", migr.key))
+			lgr.Info("Running migration", zap.String("migration", migr.key))
 			tx.MustExec(migr.up)
 			tx.MustExec(AddMigration, migr.key)
 		}
@@ -102,7 +94,7 @@ func (mgr *Migration) RunMigrations() error {
 	return tx.Commit()
 }
 
-type migrationScript struct {
+type MigrationScript struct {
 	key  string
 	up   string
 	down string
@@ -114,11 +106,7 @@ type migrationEntity struct {
 	DateTimeCreated *time.Time `db:"datetimecreated"`
 }
 
-var migrations = []migrationScript{
-	
-}
-
-var timestampProcedures = migrationScript{
+var timestampProcedures = MigrationScript{
 	up: `
 		CREATE OR REPLACE FUNCTION trigger_set_datetimecreated()
 		RETURNS TRIGGER AS $$
@@ -140,7 +128,7 @@ var timestampProcedures = migrationScript{
 		DROP FUNCTION trigger_set_datetimecreated();`,
 }
 
-var migrationTable = migrationScript{
+var migrationTable = MigrationScript{
 	up: `
 		CREATE TABLE migrations (
 			index SERIAL,

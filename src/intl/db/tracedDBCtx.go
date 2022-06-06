@@ -1,6 +1,8 @@
 package db
 
 import (
+	"database/sql"
+
 	"github.com/jmoiron/sqlx"
 	"go.uber.org/zap"
 )
@@ -46,6 +48,20 @@ func (trDB *TracedDBContext) Select (
     trDB.lgr.Info("Database query succeded")
   }
   return err
+}
+
+func (db *TracedDBContext) Exec(
+	query string,
+	args ...interface{},
+) (sql.Result, error) {
+	db.lgr.Info("Executing query on database")
+	res, err := db.DB.Exec(query, args...)	
+	if err != nil {
+    db.lgr.Error("Database query failed", zap.Error(err))
+  } else {
+    db.lgr.Info("Database query succeded")
+  }
+  return res, err
 }
 
 func (db *TracedDBContext) Beginx () (*TracedDBTransaction, error) {

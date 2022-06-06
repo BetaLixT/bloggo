@@ -8,11 +8,13 @@ import (
 
 	"github.com/betalixt/bloggo/intl/db"
 	"github.com/betalixt/bloggo/optn"
+	"github.com/betalixt/bloggo/repo"
 	"github.com/betalixt/bloggo/svc"
 	"github.com/betalixt/bloggo/util/blerr"
 	"github.com/betalixt/bloggo/util/config"
 	"github.com/betalixt/bloggo/util/logger"
 	"github.com/gin-gonic/gin"
+	"github.com/jmoiron/sqlx"
 	"github.com/spf13/viper"
 	"go.uber.org/fx"
 	"go.uber.org/zap"
@@ -45,7 +47,6 @@ func main() {
 		fx.Provide(optn.NewCorsOptions),
 		fx.Provide(optn.NewDatabaseOptions),
 		fx.Provide(db.NewDatabase),
-		// fx.Provide(db.NewMigration),
 		fx.Provide(svc.NewTokenService),
 		fx.Provide(NewGinEngine),
 		fx.Invoke(StartService),
@@ -56,7 +57,7 @@ func main() {
 func StartService(
 	cfg *viper.Viper,
 	lgr *zap.Logger,
-	// mgr *db.Migration,
+	dbctx *sqlx.DB,
 	gin *gin.Engine) {
 	
 	port := cfg.GetString("PORT")
@@ -68,11 +69,14 @@ func StartService(
 		panic(blerr.NewError(blerr.InvalidPortCode, 500, ""))
 	}
 
-	// lgr.Info("Running migrations")
-	// err := mgr.RunMigrations()
-	// if err != nil {
-	// 	lgr.Warn("Failed running migrations", zap.Error(err))
-	// }
+	lgr.Info("Running migrations")
+	err := repo.RunMigrations(
+		db.NewTracedDBContext(dbctx, lgr),
+		lgr,
+	)
+	if err != nil {
+		lgr.Warn("Failed running migrations", zap.Error(err))
+	}
 	
 	lgr.Info("Starting service", zap.String("port", port))
 	gin.Run(fmt.Sprintf(":%s", port))
