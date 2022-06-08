@@ -51,6 +51,10 @@ func (tctx *TransactionContext) GetTracer() trace.ITracer {
 	return tctx.tracer
 }
 
+func (tctx *TransactionContext) IsParent() bool {
+	return tctx.isParent
+}
+
 // - Constructor
 func NewTransactionContext(
 	cid string,
