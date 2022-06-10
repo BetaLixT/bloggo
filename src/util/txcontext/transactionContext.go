@@ -9,8 +9,7 @@ import (
 )
 
 type TransactionContext struct {
-	cid        string
-	rid        string
+	nextTraceparent string
 	isParent   bool
 	db         *sqlx.DB
 	logger     *zap.Logger
@@ -27,7 +26,7 @@ func (tctx *TransactionContext) GetHttpClient() *http.HttpClient {
 		tctx.httpClient = http.NewClient(
 			tctx.GetTracer(),
 			map[string]string{
-				"x-correlation-id": tctx.cid,
+				"traceparent": tctx.nextTraceparent,
 			},
 		)
 	}
@@ -57,18 +56,17 @@ func (tctx *TransactionContext) IsParent() bool {
 
 // - Constructor
 func NewTransactionContext(
-	cid string,
+	nxtTraceparent string,
+	tid string,
+	pid string,
 	rid string,
-	isParent bool,
 	db *sqlx.DB,
 	logger *zap.Logger,
 ) *TransactionContext {
 
 	return &TransactionContext{
-		cid:      cid,
-		rid:      rid,
-		isParent: isParent,
+		isParent: pid == "",
 		db:       db,
-		logger:   logger.With(zap.String("cid", cid), zap.String("rid", rid)),
+		logger:   logger.With(zap.String("tid", tid), zap.String("pid", pid), zap.String("rid", rid)),
 	}
 }

@@ -125,6 +125,30 @@ func ParseTraceparentRaw(
  	return vers, tid, pid, flg, nil
 }
 
+func ParseTraceparent(
+  traceparent string,
+) (string, string, string, string, error) {
+  values := strings.Split(traceparent, "-")
+  if len(values) != 4 {
+  	return "" , "", "", "", fmt.Errorf(INVALID_VALUE_COUNT)
+  }
+ 	
+ 	if len(values[0]) != 2 {
+ 		return "", "", "", "", fmt.Errorf(VERSION_INVALID_LENGTH)	
+ 	}	
+	if len(values[1]) != 32 {
+ 		return "", "", "", "", fmt.Errorf(TRACEID_INVALID_LENGTH)	
+ 	}	
+ 	if len(values[2]) != 16 {
+ 		return "", "", "", "", fmt.Errorf(PARENTID_INVALID_LENGTH)	
+ 	}	
+	if len(values[3]) != 2 {
+ 		return "", "", "", "", fmt.Errorf(FLAG_INVALID_LENGTH)	
+ 	}
+
+ 	return values[0], values[1], values[2], values[3], nil
+}
+
 func ValidateTraceIdValue(traceId []byte) error {
 	for idx := 0; idx < len(traceId); idx++ {
 		if traceId[idx] != 0 {
