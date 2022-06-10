@@ -3,6 +3,7 @@ package db
 import (
 	"testing"
 
+	"github.com/betalixt/bloggo/intl/trace"
 	"github.com/betalixt/bloggo/optn"
 	"github.com/betalixt/bloggo/util/config"
 	"github.com/betalixt/bloggo/util/logger"
@@ -24,8 +25,9 @@ func TestMigration(t *testing.T){
 	}
 	cfg := viper.GetViper()
 	db := NewDatabase(optn.NewDatabaseOptions(cfg))
-	mgr := NewMigration(db, lgr)
-	err := mgr.RunMigrations()
+	tracer := trace.NewZapTracer(lgr)
+	trdb := NewTracedDBContext(db, tracer, "test")
+	err := RunMigrations(lgr, trdb, nil)
 	if err != nil {
 		t.Errorf("failed with: %v", err)
 		t.FailNow()

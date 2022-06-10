@@ -3,6 +3,7 @@ package db
 import (
 	"testing"
 
+	"github.com/betalixt/bloggo/intl/trace"
 	"github.com/betalixt/bloggo/optn"
 	"github.com/betalixt/bloggo/util/config"
 	"github.com/betalixt/bloggo/util/logger"
@@ -24,7 +25,8 @@ func TestGet(t *testing.T) {
 	}
 	cfg := viper.GetViper()
 	db := NewDatabase(optn.NewDatabaseOptions(cfg))
-  tdb := NewTracedDBContext(db, lgr)
+	tracer := trace.NewZapTracer(lgr)
+  tdb := NewTracedDBContext(db, tracer, "test")
   tx := tdb.MustBegin()
   chck := ExistsEntity{}
   err := tx.Get(&chck, CheckTimestampProceduresExist)

@@ -2,7 +2,7 @@ package hlpr
 
 import (
 	"crypto/rand"
-	"encoding/base64"
+	"encoding/hex"
 	"fmt"
 	"strings"
 )
@@ -39,7 +39,7 @@ func GenerateTraceId() (string, error) {
   if raw, err := GenerateTraceIdRaw(); err != nil {
     return "", fmt.Errorf("Failed to generate trace Id %w", err)
   } else {
-    return base64.StdEncoding.EncodeToString(raw), nil
+    return hex.EncodeToString(raw), nil
   }
 }
 
@@ -55,7 +55,7 @@ func GenerateParentId() (string, error) {
   if raw, err := GenerateParentIdRaw(); err != nil {
     return "", fmt.Errorf("Failed to generate parent Id %w", err)
   } else {
-    return base64.StdEncoding.EncodeToString(raw), nil
+    return hex.EncodeToString(raw), nil
   }
 }
 
@@ -90,7 +90,7 @@ func ParseTraceparentRaw(
   	return nil, nil, nil, nil, fmt.Errorf(INVALID_VALUE_COUNT)
   }
  	
- 	vers, err := base64.StdEncoding.DecodeString(values[0])
+ 	vers, err := hex.DecodeString(values[0])
  	if err != nil {
 		return nil, nil, nil, nil, fmt.Errorf("failed to decode version %w", err)
  	}
@@ -98,7 +98,7 @@ func ParseTraceparentRaw(
  		return nil, nil, nil, nil, fmt.Errorf(VERSION_INVALID_LENGTH)	
  	}
 
-	tid, err := base64.StdEncoding.DecodeString(values[1])
+	tid, err := hex.DecodeString(values[1])
  	if err != nil {
 		return nil, nil, nil, nil, fmt.Errorf("failed to decode traceId %w", err)
  	}
@@ -106,15 +106,15 @@ func ParseTraceparentRaw(
  		return nil, nil, nil, nil, fmt.Errorf(TRACEID_INVALID_LENGTH)	
  	}
 
-	pid, err := base64.StdEncoding.DecodeString(values[2])
+	pid, err := hex.DecodeString(values[2])
  	if err != nil {
 		return nil, nil, nil, nil, fmt.Errorf("failed to decode parentId %w", err)
  	}
- 	if len(tid) != 8 {
+ 	if len(pid) != 8 {
  		return nil, nil, nil, nil, fmt.Errorf(PARENTID_INVALID_LENGTH)	
  	}
 
-	flg, err := base64.StdEncoding.DecodeString(values[3])
+	flg, err := hex.DecodeString(values[3])
  	if err != nil {
 		return nil, nil, nil, nil, fmt.Errorf("failed to decode flag %w", err)
  	}
