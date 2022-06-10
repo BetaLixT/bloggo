@@ -35,3 +35,16 @@ func TestParseTraceparentRaw(t *testing.T) {
     }
   }
 }
+
+func TestGenerateTrace(t *testing.T) {
+  traceparent, err := GenerateNewTraceparent(true)
+  if err != nil {
+    t.Errorf("failed: %v", err)
+    t.FailNow()
+  }
+  _, _, _, _, err = ParseTraceparentRaw(traceparent)
+  if err != nil {
+    t.Errorf("failed: %v", err)
+    t.FailNow()
+  }
+}
