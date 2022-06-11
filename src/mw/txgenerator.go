@@ -24,11 +24,13 @@ func TransactionContextGenerationMiddleware(
 		tid := ""
 		pid := ""
 		rid := ""
+		var err error
 
 		// TODO benchmark and optimize
 		if trcprnt != "" {
 			// this is mostly to validate that the traceparent is legit
-			_, _, pidr, _, err := hlpr.ParseTraceparentRaw(trcprnt)
+			var pidr []byte	
+			_, _, pidr, _, err = hlpr.ParseTraceparentRaw(trcprnt)
 			if err != nil {
 				trcprnt, err = hlpr.GenerateNewTraceparent(true)
 				if err != nil {
@@ -60,7 +62,7 @@ func TransactionContextGenerationMiddleware(
 			}
 
 		} else {
-			trcprnt, err := hlpr.GenerateNewTraceparent(true)
+			trcprnt, err = hlpr.GenerateNewTraceparent(true)
 				if err != nil {
 					lgr.Error("Failed to generate traceparent", zap.Error(err))
 				} else {	
