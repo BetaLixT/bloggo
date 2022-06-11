@@ -9,7 +9,7 @@
       },
       "configuration": {
         "request": "launch",
-        "program": "${fileDirname}",
+        "program": "${workspaceRoot}",
         "mode": "debug"
       }
     },
