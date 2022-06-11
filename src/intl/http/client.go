@@ -249,6 +249,9 @@ func (httpClient *HttpClient) action(
 	httpClient.formHeaders(req, headers)
 
 	resp, err := httpClient.runRequest(req)
+	if err != nil {
+		return nil, err
+	}
 	respObj := Response(*resp)
 	return &respObj, nil
 }
@@ -280,6 +283,9 @@ func (httpClient *HttpClient) actionBody(
 	req.Header.Set("Content-Type", "application/json")
 
 	resp, err := httpClient.runRequest(req)
+	if err != nil {
+		return nil, err
+	}
 	respObj := Response(*resp)
 	return &respObj, nil
 }
@@ -309,6 +315,9 @@ func (httpClient *HttpClient) actionForm(
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 
 	resp, err := httpClient.runRequest(req)
+	if err != nil {
+		return nil, err
+	}
 	respObj := Response(*resp)
 	return &respObj, nil
 }
