@@ -14,10 +14,9 @@ func LoggingMiddleware() gin.HandlerFunc {
 		path := c.Request.URL.Path
 		query := c.Request.URL.RawQuery
 
-		c.Next()
-		
 		// Dependent on the txgenerator
 		tctx := c.MustGet("tctx").(*txcontext.TransactionContext)
+		c.Next()	
 		
 		ts := time.Now()
 		// latency := ts.Sub(start)

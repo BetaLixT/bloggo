@@ -22,6 +22,14 @@ var NotImplementedCode = ErrorCode{
 	code:    10001,
 	message: "NotImplemented",
 }
+var UnsetResponse = ErrorCode{
+	code:    10002,
+	message: "UnsetResponse",
+}
+var InvalidStatusCode = ErrorCode{
+	code:    10003,
+	message: "InvalidStatusCode",
+}
 
 // - Database errors
 var DatabaseConnectionOpenFailure = ErrorCode{

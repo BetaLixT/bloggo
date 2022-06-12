@@ -15,6 +15,7 @@ func AuthMiddleware(tknSvc *svc.TokenService) gin.HandlerFunc {
 		authSplit := strings.Split(authHeader, " ")
 		if len(authSplit) != 2 || authSplit[0] != "Bearer" {
 			ctx.Error(blerr.NewError(blerr.TokenInvalidCode, 401, ""))
+			ctx.Abort()
 			return
 		}
 
@@ -23,6 +24,7 @@ func AuthMiddleware(tknSvc *svc.TokenService) gin.HandlerFunc {
 		_, err := tknSvc.ValidateToken(tctx, authSplit[1])
 		if err != nil {
 			ctx.Error(err)
+			ctx.Abort()
 			return
 		}
 		ctx.Next()

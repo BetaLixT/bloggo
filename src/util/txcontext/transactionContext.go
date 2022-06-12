@@ -2,20 +2,20 @@ package txcontext
 
 import (
 	"github.com/betalixt/bloggo/intl/db"
-	"github.com/betalixt/bloggo/intl/trace"
 	"github.com/betalixt/bloggo/intl/http"
+	"github.com/betalixt/bloggo/intl/trace"
 	"github.com/jmoiron/sqlx"
 	"go.uber.org/zap"
 )
 
 type TransactionContext struct {
-	nextTraceparent string
-	isParent   bool
-	db         *sqlx.DB
-	logger     *zap.Logger
-	tracer     trace.ITracer
-	httpClient *http.HttpClient
-	tracedDB   *db.TracedDBContext
+	traceparent string
+	isParent    bool
+	db          *sqlx.DB
+	logger      *zap.Logger
+	tracer      trace.ITracer
+	httpClient  *http.HttpClient
+	tracedDB    *db.TracedDBContext
 }
 
 func (tctx *TransactionContext) GetLogger() *zap.Logger {
@@ -26,7 +26,7 @@ func (tctx *TransactionContext) GetHttpClient() *http.HttpClient {
 		tctx.httpClient = http.NewClient(
 			tctx.GetTracer(),
 			map[string]string{
-				"traceparent": tctx.nextTraceparent,
+				"traceparent": tctx.traceparent,
 			},
 		)
 	}
@@ -56,7 +56,7 @@ func (tctx *TransactionContext) IsParent() bool {
 
 // - Constructor
 func NewTransactionContext(
-	nxtTraceparent string,
+	traceparent string,
 	tid string,
 	pid string,
 	rid string,
@@ -65,8 +65,9 @@ func NewTransactionContext(
 ) *TransactionContext {
 
 	return &TransactionContext{
-		isParent: pid == "",
-		db:       db,
-		logger:   logger.With(zap.String("tid", tid), zap.String("pid", pid), zap.String("rid", rid)),
+		isParent:    pid == "",
+		traceparent: traceparent,
+		db:          db,
+		logger:      logger.With(zap.String("tid", tid), zap.String("pid", pid), zap.String("rid", rid)),
 	}
 }

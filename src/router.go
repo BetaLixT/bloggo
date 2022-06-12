@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/betalixt/bloggo/ctrl"
 	"github.com/betalixt/bloggo/mw"
 	"github.com/betalixt/bloggo/optn"
 	"github.com/betalixt/bloggo/svc"
@@ -14,6 +15,7 @@ func NewGinEngine(
 	corsOptn *optn.CorsOptions,
 	tknSvc *svc.TokenService,
 	db *sqlx.DB,
+	attctrl *ctrl.AttachmentController,
 ) *gin.Engine {
 	router := gin.New()
 	gin.SetMode(gin.ReleaseMode)
@@ -23,9 +25,10 @@ func NewGinEngine(
 	router.Use(mw.TransactionContextGenerationMiddleware(lgr, db))
 	router.Use(mw.LoggingMiddleware())
 	router.Use(mw.RecoveryMiddleware(lgr))
+	router.Use(mw.ErrorHandlerMiddleware())
 	router.Use(mw.CorsMiddleware(lgr, corsOptn))
   // TODO Make this configurable
-	router.Use(mw.AuthMiddleware(tknSvc))
+	// router.Use(mw.AuthMiddleware(tknSvc))
 
 	// - Responding to head
 	router.GET("/", func(ctx *gin.Context) {
@@ -33,6 +36,8 @@ func NewGinEngine(
 			"status": "alive",
 		})
 	})
+	v1 := router.Group("api/v1")
+	attctrl.RegisterRoutes(v1.Group("attachments"))
 
 	return router
 }

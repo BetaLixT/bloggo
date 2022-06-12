@@ -38,6 +38,14 @@ func UnexpectedError() *Error {
 	}
 }
 
+func UnsetResponseError() *Error {
+	return &Error{
+		StatusCode: 500,
+		ErrorCode: UnsetResponse.code,
+		ErrorMessage: UnsetResponse.message,
+	}
+}
+
 func UnexpectedErrorDetailed(e error) *Error {
 	return &Error{
 		StatusCode:   500,

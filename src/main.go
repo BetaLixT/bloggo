@@ -6,6 +6,8 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/betalixt/bloggo/clnt"
+	"github.com/betalixt/bloggo/ctrl"
 	"github.com/betalixt/bloggo/intl/db"
 	"github.com/betalixt/bloggo/intl/trace"
 	"github.com/betalixt/bloggo/optn"
@@ -47,8 +49,12 @@ func main() {
 		fx.Provide(config.NewConfig),
 		fx.Provide(optn.NewCorsOptions),
 		fx.Provide(optn.NewDatabaseOptions),
+		fx.Provide(optn.NewFileServiceClientOptions),
 		fx.Provide(db.NewDatabase),
+		fx.Provide(clnt.NewFileServiceClient),
 		fx.Provide(svc.NewTokenService),
+		fx.Provide(svc.NewAttachmentService),
+		fx.Provide(ctrl.NewAttachmentController),
 		fx.Provide(NewGinEngine),
 		fx.Invoke(StartService),
 	)
