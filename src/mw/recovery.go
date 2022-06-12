@@ -15,13 +15,14 @@ import (
 
 func RecoveryMiddleware(logger *zap.Logger) gin.HandlerFunc {
 	return func(c *gin.Context) {
+		tctxAny, exists := c.Get("tctx") 
 		defer func() {
 			if err := recover(); err != nil {
 				
 				// Dependent on the txgenerator
 				// Making it more resilient to avoid errors
 				lgr := (*zap.Logger)(nil)
-				if tctxAny, exists := c.Get("tctx"); !exists {
+				if !exists {
 					lgr = logger
 				} else if tctx, ok := tctxAny.(*txcontext.TransactionContext); !ok {
 					lgr = logger
