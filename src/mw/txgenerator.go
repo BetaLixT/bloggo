@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/betalixt/bloggo/intl/trace"
 	"github.com/betalixt/bloggo/intl/trace/hlpr"
 	"github.com/betalixt/bloggo/util/txcontext"
 	"github.com/jmoiron/sqlx"
@@ -16,6 +17,7 @@ import (
 )
 
 func TransactionContextGenerationMiddleware(
+	ins *trace.AppInsightsCore,
 	lgr *zap.Logger,
 	db *sqlx.DB,
 ) gin.HandlerFunc {
@@ -79,6 +81,7 @@ func TransactionContextGenerationMiddleware(
 			pid,
 			rid,
 			db,
+			ins,
 			lgr,
 		)
 		ctx.Set("tctx", tctx)

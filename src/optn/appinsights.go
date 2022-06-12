@@ -7,9 +7,9 @@ type AppInsightsOptions struct {
 	ServiceName        string
 }
 
-func NewAppInsightsOptions(cfg viper.Viper) *AppInsightsOptions {
+func NewAppInsightsOptions(cfg *viper.Viper) *AppInsightsOptions {
 	return &AppInsightsOptions{
-		InstrumentationKey: cfg.GetString("AppInsightsOptions:InstrumentationKey"),
-		ServiceName:        cfg.GetString("AppInsightsOptions:ServiceName"),
+		InstrumentationKey: cfg.GetString("AppInsightsOptions.InstrumentationKey"),
+		ServiceName:        cfg.GetString("AppInsightsOptions.ServiceName"),
 	}
 }

@@ -64,7 +64,7 @@ func (tracer *AppInsightsTrace) TraceRequest(
 		ResponseCode: strconv.Itoa(statusCode),
 		Success:      statusCode > 99 && statusCode < 300,
 		BaseTelemetry: appinsights.BaseTelemetry{
-			Timestamp:  eventTimestamp,
+			Timestamp:  startTimestamp,
 			Tags:       make(contracts.ContextTags),
 			Properties: props,
 		},
@@ -104,7 +104,7 @@ func (tracer *AppInsightsTrace) TraceDependency(
 		Success: success,
 		Duration: eventTimestamp.Sub(startTimestamp),
 		BaseTelemetry: appinsights.BaseTelemetry{
-			Timestamp:  eventTimestamp,
+			Timestamp:  startTimestamp,
 			Tags:       make(contracts.ContextTags),
 			Properties: props,
 		},
@@ -113,6 +113,6 @@ func (tracer *AppInsightsTrace) TraceDependency(
 		}, 
 	}
   tele.Tags.Operation().SetId(tracer.tid)
-  tele.Tags.Operation().SetParentId(tracer.pid)
+  tele.Tags.Operation().SetParentId(tracer.rid)
   (*tracer.core.Client).Track(tele)
 }

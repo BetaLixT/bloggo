@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/betalixt/bloggo/ctrl"
+	"github.com/betalixt/bloggo/intl/trace"
 	"github.com/betalixt/bloggo/mw"
 	"github.com/betalixt/bloggo/optn"
 	"github.com/betalixt/bloggo/svc"
@@ -15,6 +16,7 @@ func NewGinEngine(
 	corsOptn *optn.CorsOptions,
 	tknSvc *svc.TokenService,
 	db *sqlx.DB,
+	ins *trace.AppInsightsCore,
 	attctrl *ctrl.AttachmentController,
 ) *gin.Engine {
 	router := gin.New()
@@ -22,7 +24,7 @@ func NewGinEngine(
 	router.SetTrustedProxies(nil)
 
 	// - Setting up middlewares
-	router.Use(mw.TransactionContextGenerationMiddleware(lgr, db))
+	router.Use(mw.TransactionContextGenerationMiddleware(ins, lgr, db))
 	router.Use(mw.LoggingMiddleware())
 	router.Use(mw.RecoveryMiddleware(lgr))
 	router.Use(mw.ErrorHandlerMiddleware())

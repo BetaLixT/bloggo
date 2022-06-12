@@ -9,13 +9,17 @@ import (
 )
 
 type TransactionContext struct {
-	traceparent string
-	isParent    bool
-	db          *sqlx.DB
-	logger      *zap.Logger
-	tracer      trace.ITracer
-	httpClient  *http.HttpClient
-	tracedDB    *db.TracedDBContext
+	traceparent     string
+	tid             string
+	pid             string
+	rid             string
+	isParent        bool
+	db              *sqlx.DB
+	logger          *zap.Logger
+	appinsightsCore *trace.AppInsightsCore
+	tracer          trace.ITracer
+	httpClient      *http.HttpClient
+	tracedDB        *db.TracedDBContext
 }
 
 func (tctx *TransactionContext) GetLogger() *zap.Logger {
@@ -45,7 +49,12 @@ func (tctx *TransactionContext) GetDatabaseContext() *db.TracedDBContext {
 
 func (tctx *TransactionContext) GetTracer() trace.ITracer {
 	if tctx.tracer == nil {
-		tctx.tracer = trace.NewZapTracer(tctx.logger)
+		tctx.tracer = trace.NewAppInsightsTrace(
+			tctx.appinsightsCore,
+			tctx.tid,
+			tctx.pid,
+			tctx.rid,
+		)
 	}
 	return tctx.tracer
 }
@@ -61,13 +70,17 @@ func NewTransactionContext(
 	pid string,
 	rid string,
 	db *sqlx.DB,
+	appinsightsCore *trace.AppInsightsCore,
 	logger *zap.Logger,
 ) *TransactionContext {
 
 	return &TransactionContext{
-		isParent:    pid == "",
-		traceparent: traceparent,
-		db:          db,
-		logger:      logger.With(zap.String("tid", tid), zap.String("pid", pid), zap.String("rid", rid)),
+		tid:             tid,
+		pid:             pid,
+		rid:             rid,
+		traceparent:     traceparent,
+		appinsightsCore: appinsightsCore,
+		db:              db,
+		logger:          logger.With(zap.String("tid", tid), zap.String("pid", pid), zap.String("rid", rid)),
 	}
 }
