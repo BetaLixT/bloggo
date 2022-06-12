@@ -63,6 +63,7 @@ func (tracer *ZapTracer) TraceRequest(
 }
 
 func (tracer *ZapTracer) TraceDependency(
+	spanId string,
 	dependencyType string,
 	serviceName string,
 	commandName string,
@@ -75,6 +76,7 @@ func (tracer *ZapTracer) TraceDependency(
 	other := fieldsToZapFields(fields...)
 	latency := eventTimestamp.Sub(startTimestamp)
 	zfields := []zap.Field{
+		zap.String("sid", spanId),
 		zap.String("dependencyType", dependencyType),
 		zap.String("serviceName", serviceName),
 		zap.String("commandName", commandName),

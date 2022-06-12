@@ -26,6 +26,7 @@ func TransactionContextGenerationMiddleware(
 		tid := ""
 		pid := ""
 		rid := ""
+		flg := ""
 		var err error
 
 		// TODO benchmark and optimize
@@ -41,10 +42,12 @@ func TransactionContextGenerationMiddleware(
 					values := strings.Split(trcprnt, "-")
 					tid = values[1]
 					rid = values[2]
+					flg = values[3]
 				}
 			} else {
 				values := strings.Split(trcprnt, "-")
 				tid = values[1]
+				flg = values[3]
 				rid, err = hlpr.GenerateParentId()
 				if err != nil {
 					lgr.Error("Failed to generate parent id", zap.Error(err))
@@ -71,6 +74,7 @@ func TransactionContextGenerationMiddleware(
 					values := strings.Split(trcprnt, "-")
 					tid = values[1]
 					rid = values[2]
+					flg = values[3]
 				}
 		} 
 		
@@ -80,6 +84,7 @@ func TransactionContextGenerationMiddleware(
 			tid,
 			pid,
 			rid,
+			flg,
 			db,
 			ins,
 			lgr,

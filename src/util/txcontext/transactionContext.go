@@ -13,6 +13,7 @@ type TransactionContext struct {
 	tid             string
 	pid             string
 	rid             string
+	flg             string
 	isParent        bool
 	db              *sqlx.DB
 	logger          *zap.Logger
@@ -29,9 +30,10 @@ func (tctx *TransactionContext) GetHttpClient() *http.HttpClient {
 	if tctx.httpClient == nil {
 		tctx.httpClient = http.NewClient(
 			tctx.GetTracer(),
-			map[string]string{
-				"traceparent": tctx.traceparent,
-			},
+			nil,
+			tctx.tid,
+			tctx.pid,
+			tctx.flg,
 		)
 	}
 	return tctx.httpClient
@@ -69,6 +71,7 @@ func NewTransactionContext(
 	tid string,
 	pid string,
 	rid string,
+	flg string,
 	db *sqlx.DB,
 	appinsightsCore *trace.AppInsightsCore,
 	logger *zap.Logger,
@@ -78,6 +81,7 @@ func NewTransactionContext(
 		tid:             tid,
 		pid:             pid,
 		rid:             rid,
+		flg:             flg,
 		traceparent:     traceparent,
 		appinsightsCore: appinsightsCore,
 		db:              db,

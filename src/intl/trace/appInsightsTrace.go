@@ -80,6 +80,7 @@ func (tracer *AppInsightsTrace) TraceRequest(
 }
 
 func (tracer *AppInsightsTrace) TraceDependency(
+	spanId string,
 	dependencyType string,
 	serviceName string,
 	commandName string,
@@ -98,6 +99,7 @@ func (tracer *AppInsightsTrace) TraceDependency(
 	  props[field.Key] = field.Value
 	}
   tele := &appinsights.RemoteDependencyTelemetry{
+  	Id:      spanId,
 		Name:    commandName,
 		Type:    dependencyType,
 		Target:  serviceName,

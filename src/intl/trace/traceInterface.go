@@ -17,6 +17,7 @@ type ITracer interface {
 		fields ...Field,
 	)
 	TraceDependency(
+		spanId string,
 		dependencyType string,
 		serviceName string,
 		commandName string,

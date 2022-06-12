@@ -11,12 +11,16 @@ import (
 	"time"
 
 	"github.com/betalixt/bloggo/intl/trace"
+	"github.com/betalixt/bloggo/intl/trace/hlpr"
 )
 
 type HttpClient struct {
 	client  http.Client
 	tracer  trace.ITracer
 	headers map[string]string
+	tid     string
+	pid     string
+	flg     string
 }
 
 func (httpClient *HttpClient) Get(
@@ -337,11 +341,26 @@ func (httpClient *HttpClient) formHeaders(
 func (httpClient *HttpClient) runRequest(
 	req *http.Request,
 ) (*http.Response, error) {
+	sid, err := hlpr.GenerateParentId()
+	if err == nil {
+		req.Header.Add(
+			"traceparent",
+			fmt.Sprintf("00-%s-%s-%s", httpClient.tid, sid, httpClient.flg),
+		)
+	} else {
+		req.Header.Add(
+			"traceparent",
+			fmt.Sprintf("00-%s-%s-%s", httpClient.tid, httpClient.pid, httpClient.flg),
+		)
+	}
 	start := time.Now()
 	resp, err := httpClient.client.Do(req)
 	end := time.Now()
+	
+	
 	if err != nil {
 		httpClient.tracer.TraceDependency(
+			sid,
 			"http",
 			req.URL.Hostname(),
 			fmt.Sprintf("%s %s", req.Method, req.URL.RequestURI()),
@@ -354,6 +373,7 @@ func (httpClient *HttpClient) runRequest(
 		return nil, err
 	}
 	httpClient.tracer.TraceDependency(
+		sid,
 		"http",
 		req.URL.Hostname(),
 		fmt.Sprintf("%s %s", req.Method, req.URL.RequestURI()),
@@ -424,11 +444,20 @@ func formatEp(
 }
 
 // - "Constructors"
-func NewClient(tracer trace.ITracer, headers map[string]string) *HttpClient {
+func NewClient(
+	tracer trace.ITracer,
+	headers map[string]string,
+	tid string,
+	pid string,
+	flg string,
+) *HttpClient {
 	client := HttpClient{
 		client:  *http.DefaultClient,
 		tracer:  tracer,
 		headers: headers,
+		tid:     tid,
+		pid:     pid,
+		flg:     flg,
 	}
 	return &client
 }

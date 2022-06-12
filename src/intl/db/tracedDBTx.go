@@ -24,6 +24,7 @@ func (tx *TracedDBTransaction) Get(
 	end := time.Now()
 	if err != nil {
 		tx.tracer.TraceDependency(
+			"",
 			tx.DriverName(),
 			tx.serviceName,
 			"Get",
@@ -35,6 +36,7 @@ func (tx *TracedDBTransaction) Get(
 		)
 	} else {
 		tx.tracer.TraceDependency(
+			"",
 			tx.DriverName(),
 			tx.serviceName,
 			"Get",
@@ -56,6 +58,7 @@ func (tx *TracedDBTransaction) Select(
 	end := time.Now()
 	if err != nil {
 		tx.tracer.TraceDependency(
+			"",
 			tx.DriverName(),
 			tx.serviceName,
 			"Get",
@@ -67,6 +70,7 @@ func (tx *TracedDBTransaction) Select(
 		)
 	} else {
 		tx.tracer.TraceDependency(
+			"",
 			tx.DriverName(),
 			tx.serviceName,
 			"Get",
@@ -87,6 +91,7 @@ func (tx *TracedDBTransaction) Exec(
 	end := time.Now()
 	if err != nil {
 		tx.tracer.TraceDependency(
+			"",
 			tx.DriverName(),
 			tx.serviceName,
 			"Get",
@@ -98,6 +103,7 @@ func (tx *TracedDBTransaction) Exec(
 		)
 	} else {
 		tx.tracer.TraceDependency(
+			"",
 			tx.DriverName(),
 			tx.serviceName,
 			"Get",
