@@ -45,11 +45,13 @@ func main() {
 	}()
 
 	app := fx.New(
-		fx.Provide(logger.NewLogger),
 		fx.Provide(config.NewConfig),
 		fx.Provide(optn.NewCorsOptions),
 		fx.Provide(optn.NewDatabaseOptions),
+		fx.Provide(optn.NewAppInsightsOptions),
 		fx.Provide(optn.NewFileServiceClientOptions),
+		fx.Provide(logger.NewLogger),	
+		fx.Provide(trace.NewAppInsightsCore),
 		fx.Provide(db.NewDatabase),
 		fx.Provide(clnt.NewFileServiceClient),
 		fx.Provide(svc.NewTokenService),
@@ -65,8 +67,10 @@ func StartService(
 	cfg *viper.Viper,
 	lgr *zap.Logger,
 	dbctx *sqlx.DB,
-	gin *gin.Engine) {
-	
+	gin *gin.Engine,
+	appi *trace.AppInsightsCore,
+) {
+	defer appi.Close()	
 	port := cfg.GetString("PORT")
 	if port == "" {
 		lgr.Warn("No port was specified, using 8080")
